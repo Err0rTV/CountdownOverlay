@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="js/moment-with-locales.js"></script>
+</head>
+
+<body>
+    now: <span id="now"></span><br>
+    next: <span id="next"></span><input id="h" type="number" min="0" max="23" style="width: 30px;"></input>
+    : <input id="m" type="number" min="0" max="60" style="width: 30px;"></input> : <input id="s" type="number" min="0"
+        max="60" style="width: 30px;"></input>
+    <p>
+        <button id="5min">+5min</button>
+        <button id="10min">+10min</button>
+        <button id="15min">+15min</button>
+        <button id="reset">reset</button>
+    <p>
+        <button id="2100">21h00</button>
+        <button id="2130">21h30</button>
+        <script>
+            const SECountDownKey = 'SE-CountDown';
+
+            let span_next = document.getElementById("next");
+            let span_now = document.getElementById("now");
+            let input_h = document.getElementById("h");
+            let input_m = document.getElementById("m");
+            let input_s = document.getElementById("s");
+            let button_5 = document.getElementById("5min");
+            let button_10 = document.getElementById("10min");
+            let button_15 = document.getElementById("15min");
+            let button_reset = document.getElementById("reset");
+
+            let button_2100 = document.getElementById("2100");
+            let button_2130 = document.getElementById("2130");
+
+            function change() {
+                let x = event.key;
+                //console.log(x);
+                if (x === "Enter") {
+                    let m = input_m.value;
+                    let h = input_h.value;
+                    let s = input_s.value;
+                    localStorage.setItem(SECountDownKey, moment(localStorage.getItem(SECountDownKey)).hour(input_h.value).minute(input_m.value).second(0));
+                }
+            }
+            function add_min(min) {
+                let t;
+                if (!isRunning())
+                    t = moment().add(min, "m");
+                else
+                    t = moment(localStorage.getItem(SECountDownKey)).add(min, "m");
+                localStorage.setItem(SECountDownKey, t);
+                input_s.value = t.format("ss");
+                input_m.value = t.format("mm");
+                input_h.value = t.format("HH");
+
+            }
+
+            function isRunning() {
+                return moment().isSameOrBefore(localStorage.getItem(SECountDownKey));
+            };
+
+                let t = moment(localStorage.getItem(SECountDownKey))
+                input_m.value = t.format("mm");
+                input_h.value = t.format("HH");
+
+
+                setCountdown = (h, m) => {
+                    let t = moment()
+                    localStorage.setItem(SECountDownKey, t);
+                    input_s.value = "00";
+                    input_m.value = m;
+                    input_h.value = h;
+                    localStorage.setItem('SE-CountDown', moment(localStorage.getItem(SECountDownKey)).hour(input_h.value).minute(input_m.value).second(0));
+                }
+
+                button_2100.onclick = () => { setCountdown("21", "00"); }
+                button_2130.onclick = () => { setCountdown("21", "30"); }
+
+                input_h.onkeydown = () => { change(); }
+                input_m.onkeydown = () => { change(); }
+                input_s.onkeydown = () => { change(); }
+                button_5.onclick = () => { add_min(5) };
+                button_10.onclick = () => { add_min(10) };
+                button_15.onclick = () => { add_min(15) };
+                button_reset.onclick = () => {
+                    let t = moment()
+                    localStorage.setItem(SECountDownKey, t);
+                    input_s.value = t.format("ss");
+                    input_m.value = t.format("mm");
+                    input_h.value = t.format("HH");
+                };
+
+                span_next.innerHTML = "";
+                function draw() {
+                    var drawVisual = requestAnimationFrame(draw);
+
+                    span_now.innerHTML = moment().format("HH:mm:ss");
+                };
+                draw();
+        </script>
+</body>
+
+</html>

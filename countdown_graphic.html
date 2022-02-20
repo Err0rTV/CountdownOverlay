@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <script src="js/moment-with-locales.js"></script>
+  <link href="css/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+  <div>
+    <p class="countdown" id="div_remaining"></p><br>
+  </div>
+
+
+  <script>
+    const SECountDownKey = 'SE-CountDown';
+    var start_time = moment(localStorage.getItem(SECountDownKey));
+    /**
+     * @param t time
+     * @param xx0 initial value
+     * @param xx target value
+     * @param v0 initial speed
+     */
+    function fx(t, xx0, xx, v0) {
+      let xst = xx0 - xx;
+      let gama = 0.0025;
+      let x = xx + Math.exp(-t * gama) * (xst + (v0 + gama * xst) * t);
+      if (x < 0) x = 0;
+      else if (x > 1) x = 1;
+      return x;
+    }
+    document.addEventListener('DOMContentLoaded', st, false);
+
+    function st() {
+
+        window.addEventListener('storage', (e) => { 
+          if(e.key === SECountDownKey)
+            start_time = moment(e.newValue) 
+        });
+        var opacity = 0;
+        var opto0 = false;
+        var t = Date.now() - 10000;
+        const updateChannelInfo = () => {
+
+          let viewer = document.getElementById('div_remaining');
+          let now = new moment();
+          let remaining = moment.duration((start_time.diff(moment())));
+          if (remaining <= 0) {
+            remaining = moment.duration("00:00:00");
+            if (opto0) {
+              opto0 = false;
+              t = Date.now();
+            }
+            opacity = fx(Date.now() - t, 1, 0, 0);
+          }
+          else {
+            // TODO: fade opacity to 1
+            if (!opto0) {
+              opto0 = true;
+              t = Date.now();
+            }
+            // TODO: fade opacity to 0
+            opacity = fx(Date.now() - t, 0, 1, 0);
+          }
+          //        console.log(opacity);
+          let hours = remaining.hours().toLocaleString(undefined, { minimumIntegerDigits: 2 });
+          let min = remaining.minutes().toLocaleString(undefined, { minimumIntegerDigits: 2 });
+          let sec = remaining.seconds().toLocaleString(undefined, { minimumIntegerDigits: 2 });
+          let mil = ((remaining.milliseconds() / 10)).toLocaleString(undefined, { minimumIntegerDigits: 2, maximumFractionDigits: 0 });
+          if (mil >= 100)
+            mil = 99;
+          viewer.style.opacity = opacity;
+          let str = "";
+          if (hours !== "00") str += hours + " : "
+          if (min !== "00") str += min + " : "
+          str += sec + " . " + mil;
+          viewer.innerHTML = str;
+
+          /*      console.log(remaining.minutes().toLocaleString(undefined, {minimumIntegerDigits:2})
+                 + ":" + remaining.seconds().toLocaleString(undefined, {minimumIntegerDigits:2})
+                 + "." + (remaining.milliseconds()/10).toLocaleString(undefined, {minimumIntegerDigits:2, maximumFractionDigits:0}));
+          */
+          requestAnimationFrame(updateChannelInfo);
+        }
+        requestAnimationFrame(updateChannelInfo);
+    }
+  </script>
+</body>
+
+</html>
